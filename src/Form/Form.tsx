@@ -20,6 +20,12 @@ export const Form = ({onSubmit}: Props) => {
   })
   const {name, email, password} = state.values
 
+  const onChange = (field: keyof FormValues) => (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    dispatch({type: 'SET_FIELD_VALUE', field, value: e.target.value})
+  }
+
   const onBlur = (field: keyof FormValues) => (
     e: React.FocusEvent<HTMLInputElement>,
   ) => {
@@ -47,13 +53,7 @@ export const Form = ({onSubmit}: Props) => {
           id="name"
           name="name"
           value=""
-          onChange={e =>
-            dispatch({
-              type: 'SET_FIELD_VALUE',
-              field: 'name',
-              value: e.target.value,
-            })
-          }
+          onChange={onChange('name')}
           onBlur={onBlur('name')}
         />
         {state.errors && state.errors.name && <div>{state.errors.name}</div>}
@@ -66,13 +66,7 @@ export const Form = ({onSubmit}: Props) => {
           name="email"
           type="email"
           value=""
-          onChange={e =>
-            dispatch({
-              type: 'SET_FIELD_VALUE',
-              field: 'email',
-              value: e.target.value,
-            })
-          }
+          onChange={onChange('email')}
           onBlur={onBlur('email')}
         />
         {state.errors && state.errors.email && <div>{state.errors.email}</div>}
@@ -85,13 +79,7 @@ export const Form = ({onSubmit}: Props) => {
           name="password"
           type="password"
           value=""
-          onChange={e =>
-            dispatch({
-              type: 'SET_FIELD_VALUE',
-              field: 'password',
-              value: e.target.value,
-            })
-          }
+          onChange={onChange('password')}
           onBlur={onBlur('password')}
         />
         {state.errors && state.errors.password && (
