@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useReducer} from 'react'
 
 type FormValues = {
   name: string
@@ -11,9 +11,14 @@ type Props = {
 }
 
 export const Form = ({onSubmit}: Props) => {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [state, dispatch] = useReducer(reducer, {
+    values: {
+      name: '',
+      email: '',
+      password: '',
+    },
+  })
+  const {name, email, password} = state.values
 
   return (
     <form
@@ -28,7 +33,13 @@ export const Form = ({onSubmit}: Props) => {
           id="name"
           name="name"
           value=""
-          onChange={e => setName(e.target.value)}
+          onChange={e =>
+            dispatch({
+              type: 'SET_FIELD_VALUE',
+              field: 'name',
+              value: e.target.value,
+            })
+          }
         />
       </div>
 
@@ -39,7 +50,13 @@ export const Form = ({onSubmit}: Props) => {
           name="email"
           type="email"
           value=""
-          onChange={e => setEmail(e.target.value)}
+          onChange={e =>
+            dispatch({
+              type: 'SET_FIELD_VALUE',
+              field: 'email',
+              value: e.target.value,
+            })
+          }
         />
       </div>
 
@@ -50,11 +67,40 @@ export const Form = ({onSubmit}: Props) => {
           name="password"
           type="password"
           value=""
-          onChange={e => setPassword(e.target.value)}
+          onChange={e =>
+            dispatch({
+              type: 'SET_FIELD_VALUE',
+              field: 'password',
+              value: e.target.value,
+            })
+          }
         />
       </div>
 
       <button type="submit">Submit</button>
     </form>
   )
+}
+
+// { values: {name: string, email: string, password: string}}
+export type State = {
+  values: FormValues
+}
+
+// {type: '', field: 'name', value: 'Rodrigo'}
+export type Action = {type: 'SET_FIELD_VALUE'; field: string; value: string}
+
+export const reducer = (state: State, action: Action) => {
+  switch (action.type) {
+    case 'SET_FIELD_VALUE':
+      return {
+        ...state,
+        values: {
+          ...state.values,
+          [action.field]: action.value,
+        },
+      }
+    default:
+      return state
+  }
 }
