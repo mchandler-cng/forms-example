@@ -1,5 +1,6 @@
 import React, {useReducer} from 'react'
 import {merge} from 'lodash/fp'
+import {Schema} from 'yup'
 
 type FormValues = {
   name: string
@@ -11,6 +12,8 @@ type Props = {
   onSubmit: (values: FormValues) => void
 
   initialValues?: Partial<FormValues>
+
+  validationSchema?: Schema<FormValues>
 }
 
 const defaultValues: FormValues = {
@@ -19,7 +22,7 @@ const defaultValues: FormValues = {
   password: '',
 }
 
-export const Form = ({onSubmit, initialValues}: Props) => {
+export const Form = ({onSubmit, initialValues, validationSchema}: Props) => {
   const initialReducerValues = merge(defaultValues, initialValues)
   const [state, dispatch] = useReducer(reducer, {
     values: initialReducerValues,
@@ -32,17 +35,21 @@ export const Form = ({onSubmit, initialValues}: Props) => {
     dispatch({type: 'SET_FIELD_VALUE', field, value: e.target.value})
   }
 
-  const onBlur = (field: keyof FormValues) => (
+  const onBlur = (field: keyof FormValues) => async (
     e: React.FocusEvent<HTMLInputElement>,
   ) => {
-    const isEmpty = !e.target.value.trim().length
+    if (!validationSchema) return
 
-    if (isEmpty) {
-      dispatch({
-        type: 'SET_FIELD_ERROR',
-        field,
-        error: `${field} is a required field`,
-      })
+    try {
+      await validationSchema.validateAt(field, state.values)
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        dispatch({
+          type: 'SET_FIELD_ERROR',
+          field,
+          error: error.message,
+        })
+      }
     }
   }
 

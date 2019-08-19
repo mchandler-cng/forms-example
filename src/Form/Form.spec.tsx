@@ -1,6 +1,7 @@
 import * as React from 'react'
-import {render, fireEvent} from '@testing-library/react'
-import {reducer, Form, State, Action} from './Form'
+import {render, fireEvent, wait} from '@testing-library/react'
+import * as Yup from 'yup'
+import {reducer, Form, Action} from './Form'
 
 describe('reducer', () => {
   test('SET_FIELD_VALUE', () => {
@@ -72,8 +73,18 @@ test('displays provided initial values', () => {
   expect(getByLabelText(/password/i)).toHaveValue('Password')
 })
 
-test('displays required field errors', () => {
-  const {getByLabelText, getByText} = render(<Form onSubmit={jest.fn()} />)
+test('displays validation schema errors', async () => {
+  const schema = Yup.object({
+    name: Yup.string().required('Name is a required'),
+    email: Yup.string().required('Email is a required field'),
+    password: Yup.string()
+      .required('Password is a required field')
+      .min(8, 'Password must be at least 8 characters'),
+  })
+
+  const {getByLabelText, getByText} = render(
+    <Form onSubmit={jest.fn()} validationSchema={schema} />,
+  )
 
   // get our input elements
   const name = getByLabelText(/name/i)
@@ -83,10 +94,13 @@ test('displays required field errors', () => {
   // fake a blur event
   fireEvent.blur(name)
   fireEvent.blur(email)
+  fireEvent.change(password, {target: {value: 'Pass'}})
   fireEvent.blur(password)
+
+  await wait()
 
   // assert that we have expected error messages
   getByText(/name.*required/i)
   getByText(/email.*required/i)
-  getByText(/password.*required/i)
+  getByText(/password.*must be at least 8/i)
 })
