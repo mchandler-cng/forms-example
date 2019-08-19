@@ -53,6 +53,11 @@ export const Form = ({onSubmit, initialValues, validationSchema}: Props) => {
     }
   }
 
+  const hasError = (field: keyof FormValues) =>
+    !!(state.errors && state.errors[field])
+  const getError = (field: keyof FormValues) =>
+    hasError(field) ? state.errors![field] : ''
+
   return (
     <form
       onSubmit={e => {
@@ -69,7 +74,7 @@ export const Form = ({onSubmit, initialValues, validationSchema}: Props) => {
           onChange={onChange('name')}
           onBlur={onBlur('name')}
         />
-        {state.errors && state.errors.name && <div>{state.errors.name}</div>}
+        {hasError('name') && <div>{getError('name')}</div>}
       </div>
 
       <div>
@@ -82,7 +87,7 @@ export const Form = ({onSubmit, initialValues, validationSchema}: Props) => {
           onChange={onChange('email')}
           onBlur={onBlur('email')}
         />
-        {state.errors && state.errors.email && <div>{state.errors.email}</div>}
+        {hasError('email') && <div>{getError('email')}</div>}
       </div>
 
       <div>
@@ -95,9 +100,7 @@ export const Form = ({onSubmit, initialValues, validationSchema}: Props) => {
           onChange={onChange('password')}
           onBlur={onBlur('password')}
         />
-        {state.errors && state.errors.password && (
-          <div>{state.errors.password}</div>
-        )}
+        {hasError('password') && <div>{getError('password')}</div>}
       </div>
 
       <button type="submit">Submit</button>
