@@ -56,6 +56,22 @@ test('displays the form and handles submit', () => {
   })
 })
 
+test('displays provided initial values', () => {
+  const initialValues = {
+    name: 'Name',
+    email: 'Email',
+    password: 'Password',
+  }
+  const {getByLabelText} = render(
+    <Form onSubmit={jest.fn()} initialValues={initialValues} />,
+  )
+
+  // check that values are what we passed
+  expect(getByLabelText(/name/i)).toHaveValue('Name')
+  expect(getByLabelText(/email/i)).toHaveValue('Email')
+  expect(getByLabelText(/password/i)).toHaveValue('Password')
+})
+
 test('displays required field errors', () => {
   const {getByLabelText, getByText} = render(<Form onSubmit={jest.fn()} />)
 

@@ -1,4 +1,5 @@
 import React, {useReducer} from 'react'
+import {merge} from 'lodash/fp'
 
 type FormValues = {
   name: string
@@ -8,15 +9,20 @@ type FormValues = {
 
 type Props = {
   onSubmit: (values: FormValues) => void
+
+  initialValues?: Partial<FormValues>
 }
 
-export const Form = ({onSubmit}: Props) => {
+const defaultValues: FormValues = {
+  name: '',
+  email: '',
+  password: '',
+}
+
+export const Form = ({onSubmit, initialValues}: Props) => {
+  const initialReducerValues = merge(defaultValues, initialValues)
   const [state, dispatch] = useReducer(reducer, {
-    values: {
-      name: '',
-      email: '',
-      password: '',
-    },
+    values: initialReducerValues,
   })
   const {name, email, password} = state.values
 
@@ -52,7 +58,7 @@ export const Form = ({onSubmit}: Props) => {
         <input
           id="name"
           name="name"
-          value=""
+          value={name}
           onChange={onChange('name')}
           onBlur={onBlur('name')}
         />
@@ -65,7 +71,7 @@ export const Form = ({onSubmit}: Props) => {
           id="email"
           name="email"
           type="email"
-          value=""
+          value={email}
           onChange={onChange('email')}
           onBlur={onBlur('email')}
         />
@@ -78,7 +84,7 @@ export const Form = ({onSubmit}: Props) => {
           id="password"
           name="password"
           type="password"
-          value=""
+          value={password}
           onChange={onChange('password')}
           onBlur={onBlur('password')}
         />
