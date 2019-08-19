@@ -16,6 +16,20 @@ describe('reducer', () => {
       values: {name: 'Dave'},
     })
   })
+
+  test('SET_FIELD_ERROR', () => {
+    const state = {
+      values: {name: 'Mark', email: 'mark@test.com', password: 'Password1'},
+    }
+    const action: Action = {
+      type: 'SET_FIELD_ERROR',
+      field: 'name',
+      error: '"Dave" is not a valid name',
+    }
+    expect(reducer(state, action)).toMatchObject({
+      errors: {name: '"Dave" is not a valid name'},
+    })
+  })
 })
 
 test('displays the form and handles submit', () => {
@@ -40,4 +54,23 @@ test('displays the form and handles submit', () => {
     email: 'rodrigo@cooldude.com',
     password: 'Password1',
   })
+})
+
+test('displays required field errors', () => {
+  const {getByLabelText, getByText} = render(<Form onSubmit={jest.fn()} />)
+
+  // get our input elements
+  const name = getByLabelText(/name/i)
+  const email = getByLabelText(/email/i)
+  const password = getByLabelText(/password/i)
+
+  // fake a blur event
+  fireEvent.blur(name)
+  fireEvent.blur(email)
+  fireEvent.blur(password)
+
+  // assert that we have expected error messages
+  getByText(/name.*required/i)
+  getByText(/email.*required/i)
+  getByText(/password.*required/i)
 })

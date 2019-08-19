@@ -20,6 +20,20 @@ export const Form = ({onSubmit}: Props) => {
   })
   const {name, email, password} = state.values
 
+  const onBlur = (field: keyof FormValues) => (
+    e: React.FocusEvent<HTMLInputElement>,
+  ) => {
+    const isEmpty = !e.target.value.trim().length
+
+    if (isEmpty) {
+      dispatch({
+        type: 'SET_FIELD_ERROR',
+        field,
+        error: `${field} is a required field`,
+      })
+    }
+  }
+
   return (
     <form
       onSubmit={e => {
@@ -40,7 +54,9 @@ export const Form = ({onSubmit}: Props) => {
               value: e.target.value,
             })
           }
+          onBlur={onBlur('name')}
         />
+        {state.errors && state.errors.name && <div>{state.errors.name}</div>}
       </div>
 
       <div>
@@ -57,7 +73,9 @@ export const Form = ({onSubmit}: Props) => {
               value: e.target.value,
             })
           }
+          onBlur={onBlur('email')}
         />
+        {state.errors && state.errors.email && <div>{state.errors.email}</div>}
       </div>
 
       <div>
@@ -74,7 +92,11 @@ export const Form = ({onSubmit}: Props) => {
               value: e.target.value,
             })
           }
+          onBlur={onBlur('password')}
         />
+        {state.errors && state.errors.password && (
+          <div>{state.errors.password}</div>
+        )}
       </div>
 
       <button type="submit">Submit</button>
@@ -82,15 +104,21 @@ export const Form = ({onSubmit}: Props) => {
   )
 }
 
-// { values: {name: string, email: string, password: string}}
+// {
+//   values: { name: string, email: string, password: string},
+//   errors: { name?: string, email?: string, password?: string}
+// }
 export type State = {
   values: FormValues
+  errors?: Partial<FormValues>
 }
 
 // {type: '', field: 'name', value: 'Rodrigo'}
-export type Action = {type: 'SET_FIELD_VALUE'; field: string; value: string}
+export type Action =
+  | {type: 'SET_FIELD_VALUE'; field: string; value: string}
+  | {type: 'SET_FIELD_ERROR'; field: string; error: string}
 
-export const reducer = (state: State, action: Action) => {
+export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case 'SET_FIELD_VALUE':
       return {
@@ -100,6 +128,16 @@ export const reducer = (state: State, action: Action) => {
           [action.field]: action.value,
         },
       }
+
+    case 'SET_FIELD_ERROR':
+      return {
+        ...state,
+        errors: {
+          ...state.errors,
+          [action.field]: action.error,
+        },
+      }
+
     default:
       return state
   }
